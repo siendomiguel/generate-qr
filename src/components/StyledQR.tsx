@@ -3,34 +3,6 @@
 import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 import QRCodeStyling from 'qr-code-styling';
 
-const qrCode = new QRCodeStyling({
-  width: 500,
-  height: 500,
-  type: 'canvas',
-  data: '',
-  dotsOptions: {
-    color: '#000000',
-    type: 'rounded',
-  },
-  backgroundOptions: {
-    color: '#ffffff',
-  },
-  cornersSquareOptions: {
-    type: 'rounded',
-    color: '#000000',
-  },
-  cornersDotOptions: {
-    type: 'rounded',
-    color: '#000000',
-  },
-  qrOptions: {
-    errorCorrectionLevel: 'H',
-  },
-  imageOptions: {
-    margin: 10,
-  },
-});
-
 type StyledQRProps = {
   data: string;
   dotColor: string;
@@ -43,25 +15,62 @@ const StyledQR = forwardRef(function StyledQR(
   ref: React.Ref<{ download: () => void }>
 ) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const qrCodeRef = useRef<any>(null);
 
   useImperativeHandle(ref, () => ({
     download: () => {
-      qrCode.download({ name: 'qr-code', extension: 'png' });
+      qrCodeRef.current?.download({ name: 'qr-code', extension: 'png' });
     },
   }));
 
   useEffect(() => {
-    qrCode.update({
-      data,
-      dotsOptions: { color: dotColor },
-      backgroundOptions: { color: bgColor },
-      cornersSquareOptions: { color: cornerColor },
-      cornersDotOptions: { color: cornerColor },
-    });
+    if (typeof window === 'undefined') return;
 
-    if (containerRef.current) {
-      containerRef.current.innerHTML = '';
-      qrCode.append(containerRef.current);
+    // Crear solo una vez
+    if (!qrCodeRef.current) {
+      qrCodeRef.current = new QRCodeStyling({
+        width: 500,
+        height: 500,
+        type: 'canvas',
+        data: data,
+        dotsOptions: {
+          color: dotColor,
+          type: 'square',
+        },
+        backgroundOptions: {
+          color: bgColor,
+        },
+        cornersSquareOptions: {
+          type: 'square',
+          color: cornerColor,
+        },
+        cornersDotOptions: {
+          type: 'square',
+          color: cornerColor,
+        },
+        qrOptions: {
+          errorCorrectionLevel: 'H',
+        },
+        imageOptions: {
+          margin: 10,
+        },
+      });
+
+      if (containerRef.current) {
+        qrCodeRef.current.append(containerRef.current);
+      }
+    } else {
+      qrCodeRef.current.update({
+        data,
+        dotsOptions: { color: dotColor },
+        backgroundOptions: { color: bgColor },
+        cornersSquareOptions: {
+          color: cornerColor,
+        },
+        cornersDotOptions: {
+          color: cornerColor,
+        },
+      });
     }
   }, [data, dotColor, bgColor, cornerColor]);
 
