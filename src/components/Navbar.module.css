@@ -1,0 +1,24 @@
+/* src/components/Navbar.module.css */
+.nav {
+    display: flex;
+    gap: 1rem;
+    padding: 1rem;
+    background-color: var(--color-teal);
+  }
+  
+  .nav a {
+    text-decoration: none;
+    color: var(--color-light-gray);
+    font-weight: 500;
+    transition: color 0.3s;
+  }
+  
+  .nav a:hover {
+    color: var(--color-cyan);
+  }
+  
+  .active {
+    color: var(--color-cyan);
+    text-decoration: underline;
+  }
+  
